@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learnkafka.domain.LibraryEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -66,6 +67,33 @@ public class LibraryEventsProducer {
 
         handSuccess(key, value, sendResult);
         return sendResult;
+    }
+
+    public CompletableFuture<SendResult<Integer, String>> sendLibraryEvent_approach3(LibraryEvent libraryEvent) throws JsonProcessingException {
+
+        var key = libraryEvent.libraryEventId();
+        var value = objectMapper.writeValueAsString(libraryEvent);
+
+        var producerRecord = buildProducerRecord(key, value);
+
+        //Asynchronous way
+        //1. blocking call - get metadata about the kafka cluster
+        //2. send message happens - returns a CompletableFuture
+
+        var completableFuture = kafkaTemplate.send(producerRecord);
+
+        return completableFuture
+                .whenComplete((sendResult, throwable) -> {
+                    if (throwable != null) {
+                        handleFailure(key, value, throwable);
+                    } else {
+                        handSuccess(key, value, sendResult);
+                    }
+                });
+    }
+
+    private ProducerRecord<Integer, String> buildProducerRecord(Integer key, String value) {
+        return new ProducerRecord<>(topic, key, value);
     }
 
     private void handSuccess(Integer key, String value, SendResult<Integer, String> sendResult) {
