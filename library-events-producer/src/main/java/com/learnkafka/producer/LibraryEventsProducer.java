@@ -10,6 +10,9 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Component
 @Slf4j
@@ -31,6 +34,10 @@ public class LibraryEventsProducer {
         var key = libraryEvent.libraryEventId();
         var value = objectMapper.writeValueAsString(libraryEvent);
 
+        //Asynchronous way
+        //1. blocking call - get metadata about the kafka cluster
+        //2. send message happens - returns a CompletableFuture
+
         var completableFuture = kafkaTemplate.send(topic, key, value);
 
         return completableFuture
@@ -41,6 +48,24 @@ public class LibraryEventsProducer {
                         handSuccess(key, value, sendResult);
                     }
                 });
+    }
+
+    public SendResult<Integer, String> sendLibraryEvent_approach2(LibraryEvent libraryEvent)
+            throws JsonProcessingException, ExecutionException, InterruptedException, TimeoutException {
+
+        var key = libraryEvent.libraryEventId();
+        var value = objectMapper.writeValueAsString(libraryEvent);
+
+        //Synchronous way
+        //1. blocking call - get metadata about the kafka cluster
+        //2. block and wait until the message is sent to the kafka
+
+        var sendResult = kafkaTemplate.send(topic, key, value)
+                //.get()
+                .get(3, TimeUnit.SECONDS);
+
+        handSuccess(key, value, sendResult);
+        return sendResult;
     }
 
     private void handSuccess(Integer key, String value, SendResult<Integer, String> sendResult) {
