@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @EmbeddedKafka(topics = "library-events")
 @TestPropertySource(properties = {"spring.kafka.producer.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "spring.kafka.admin.properties.bootstrap.servers=${spring.embedded.kafka.brokers}"})
-class LibraryEventControllerIntegrationTest {
+class LibraryEventsControllerIntegrationTest {
 
     //Configure embeddedKafkaBroker - done
     //Override the kafka producer bootstrap address to the embedded broker ones - done

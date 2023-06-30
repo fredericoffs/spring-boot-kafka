@@ -17,7 +17,7 @@ import java.util.concurrent.TimeoutException;
 
 @RestController
 @Slf4j
-public class LibraryEventController {
+public class LibraryEventsController {
 
     @Autowired
     private LibraryEventsProducer libraryEventsProducer;
