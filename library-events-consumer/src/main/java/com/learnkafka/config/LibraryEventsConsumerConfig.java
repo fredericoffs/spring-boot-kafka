@@ -33,7 +33,7 @@ public class LibraryEventsConsumerConfig {
         configurer.configure(factory, kafkaConsumerFactory
                 .getIfAvailable(() -> new DefaultKafkaConsumerFactory<>(this.properties.buildConsumerProperties())));
         kafkaContainerCustomizer.ifAvailable(factory::setContainerCustomizer);
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        //factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
 }
