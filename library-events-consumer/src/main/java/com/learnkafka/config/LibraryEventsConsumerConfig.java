@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerConta
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.ContainerCustomizer;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -33,11 +34,16 @@ public class LibraryEventsConsumerConfig {
                 IllegalArgumentException.class
         );
 
+        var exceptionToRetryList = List.of(
+                RecoverableDataAccessException.class
+        );
+
         var fixedBackOff = new FixedBackOff(1000L, 2);
 
         var errorHandler = new DefaultErrorHandler(fixedBackOff);
 
-        exceptionToIgnoreList.forEach(errorHandler::addNotRetryableExceptions);
+        //exceptionToIgnoreList.forEach(errorHandler::addNotRetryableExceptions);
+        exceptionToRetryList.forEach(errorHandler::addRetryableExceptions);
 
         errorHandler
                 .setRetryListeners((record, ex, deliveryAttempt) -> {
