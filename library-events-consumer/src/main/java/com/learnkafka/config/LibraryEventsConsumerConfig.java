@@ -15,6 +15,8 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
+import java.util.List;
+
 @Configuration
 //@EnableKafka
 @Slf4j
@@ -27,9 +29,15 @@ public class LibraryEventsConsumerConfig {
     }
 
     public DefaultErrorHandler errorHandler() {
+        var exceptionToIgnoreList = List.of(
+                IllegalArgumentException.class
+        );
+
         var fixedBackOff = new FixedBackOff(1000L, 2);
 
         var errorHandler = new DefaultErrorHandler(fixedBackOff);
+
+        exceptionToIgnoreList.forEach(errorHandler::addNotRetryableExceptions);
 
         errorHandler
                 .setRetryListeners((record, ex, deliveryAttempt) -> {
