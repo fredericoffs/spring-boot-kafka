@@ -59,15 +59,15 @@ public class LibraryEventsConsumerConfig {
 //    CommonErrorHandler errorHandler = new DefaultErrorHandler(recoverer, new FixedBackOff(0L, 2L));
 
     public DefaultErrorHandler errorHandler() {
-//        var exceptionToIgnoreList = List.of(
-//                IllegalArgumentException.class
-//        );
-
-        var exceptionToRetryList = List.of(
-                RecoverableDataAccessException.class
+        var exceptionToIgnoreList = List.of(
+                IllegalArgumentException.class
         );
 
-//        var fixedBackOff = new FixedBackOff(1000L, 2);
+//        var exceptionToRetryList = List.of(
+//                RecoverableDataAccessException.class
+//        );
+
+        var fixedBackOff = new FixedBackOff(1000L, 2);
 
         var expBackOff = new ExponentialBackOffWithMaxRetries(2);
         expBackOff.setInitialInterval(1_000L);
@@ -76,12 +76,12 @@ public class LibraryEventsConsumerConfig {
 
         var errorHandler = new DefaultErrorHandler(
                 publishingRecoverer(),
-//                fixedBackOff
-                expBackOff
+                fixedBackOff
+//                expBackOff
         );
 
-//        exceptionToIgnoreList.forEach(errorHandler::addNotRetryableExceptions);
-        exceptionToRetryList.forEach(errorHandler::addRetryableExceptions);
+        exceptionToIgnoreList.forEach(errorHandler::addNotRetryableExceptions);
+//        exceptionToRetryList.forEach(errorHandler::addRetryableExceptions);
 
         errorHandler
                 .setRetryListeners((record, ex, deliveryAttempt) -> {
@@ -102,7 +102,7 @@ public class LibraryEventsConsumerConfig {
         configurer.configure(factory, kafkaConsumerFactory
                 .getIfAvailable(() -> new DefaultKafkaConsumerFactory<>(this.properties.buildConsumerProperties())));
         kafkaContainerCustomizer.ifAvailable(factory::setContainerCustomizer);
-        factory.setConcurrency(3);
+//        factory.setConcurrency(3);
         factory.setCommonErrorHandler(errorHandler());
 //        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
