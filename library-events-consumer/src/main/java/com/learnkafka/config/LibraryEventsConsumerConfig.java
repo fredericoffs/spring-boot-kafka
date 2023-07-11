@@ -35,6 +35,7 @@ public class LibraryEventsConsumerConfig {
 
     public static final String RETRY = "RETRY";
     public static final String DEAD = "DEAD";
+    public static final String SUCCESS = "SUCCESS";
 
     @Autowired
     KafkaTemplate kafkaTemplate;
@@ -42,10 +43,10 @@ public class LibraryEventsConsumerConfig {
     @Autowired
     FailureService failureService;
 
-    @Value("${topics.retry}")
+    @Value("${topics.retry:library-events.RETRY}")
     private String retryTopic;
 
-    @Value("${topics.dlt}")
+    @Value("${topics.dlt:library-events.DLT}")
     private String deadLetterTopic;
 
     private final KafkaProperties properties;
