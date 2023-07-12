@@ -1,0 +1,10 @@
+*.crt
+*.jks
+*_creds
+*.key
+*.pem
+.idea
+*.srl
+*.csr
+*.req
+.DS_Store
